@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>BeatWave — Музыкальная платформа | Telegram WebApp</title>
+    <title>BeatWave — Музыкальная платформа</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -20,6 +20,7 @@
             --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --shadow-lg: 0 20px 40px rgba(0,0,0,0.3);
             --glow: 0 0 20px rgba(124, 58, 237, 0.3);
+            --success: #10b981;
         }
         body { background: var(--tg-bg); color: var(--tg-text); font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
         body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.08) 0%, transparent 50%); pointer-events: none; z-index: 0; }
@@ -34,9 +35,22 @@
         .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .cart-btn { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); padding: 12px 20px; border-radius: 40px; display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; color: var(--tg-text); }
         .cart-count { background: #f5576c; color: white; border-radius: 30px; padding: 2px 8px; font-size: 0.75rem; }
-        .filters { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 32px; }
-        .filter-chip { background: var(--tg-secondary-bg); padding: 10px 24px; border-radius: 40px; font-size: 0.9rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.05); }
-        .filter-chip.active { background: var(--gradient-1); color: white; box-shadow: var(--glow); }
+        .main-sections { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
+        .main-tab { padding: 8px 20px; border-radius: 40px; cursor: pointer; transition: all 0.3s; background: transparent; color: var(--tg-hint); font-weight: 600; }
+        .main-tab.active { background: var(--gradient-1); color: white; }
+        .search-bar { margin-bottom: 24px; position: relative; }
+        .search-input { width: 100%; padding: 14px 20px 14px 48px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 60px; color: var(--tg-text); font-size: 1rem; backdrop-filter: blur(10px); transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: #7c3aed; box-shadow: var(--glow); }
+        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--tg-hint); }
+        .popular-section { margin-bottom: 32px; }
+        .popular-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--tg-hint); }
+        .popular-grid { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
+        .popular-beat-card, .popular-producer-card { background: var(--card-bg); border-radius: 20px; padding: 12px 20px; min-width: 180px; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s; }
+        .popular-beat-card:hover, .popular-producer-card:hover { transform: translateY(-2px); border-color: rgba(124,58,237,0.3); }
+        .popular-beat-cover { width: 50px; height: 50px; border-radius: 12px; background: var(--gradient-1); background-size: cover; }
+        .popular-beat-info h4 { font-size: 0.9rem; font-weight: 700; }
+        .popular-beat-info p { font-size: 0.7rem; color: var(--tg-hint); }
+        .popular-producer-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-2); display: flex; align-items: center; justify-content: center; }
         .beats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; }
         .beat-card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s; }
         .beat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(124,58,237,0.3); }
@@ -47,61 +61,73 @@
         .play-btn { width: 60px; height: 60px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; }
         .beat-info { padding: 20px; }
         .beat-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
-        .beat-producer { font-size: 0.8rem; color: var(--tg-hint); margin-bottom: 12px; }
-        .beat-tags { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .beat-producer { font-size: 0.8rem; color: var(--tg-hint); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .beat-tags { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
         .tag { background: rgba(124,58,237,0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; }
         .action-buttons { display: flex; gap: 12px; margin-top: 12px; }
         .price { font-size: 1.5rem; font-weight: 800; background: var(--gradient-2); background-clip: text; -webkit-background-clip: text; color: transparent; }
-        .add-to-cart, .favorite-btn { border: none; padding: 10px 18px; border-radius: 40px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-        .add-to-cart { background: var(--gradient-1); color: white; }
+        .add-to-cart, .favorite-btn, .buy-btn { border: none; padding: 10px 18px; border-radius: 40px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .add-to-cart, .buy-btn { background: var(--gradient-1); color: white; }
         .favorite-btn { background: rgba(255,255,255,0.1); color: var(--tg-text); }
         .favorite-btn.active { background: #f5576c; color: white; }
-
-        /* Стили для профиля */
         .profile-header { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 32px; padding: 32px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.05); }
         .profile-avatar-large { width: 120px; height: 120px; border-radius: 50%; background: var(--gradient-1); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 3rem; overflow: hidden; cursor: pointer; }
         .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
         .profile-username { text-align: center; font-size: 1.8rem; font-weight: 800; margin-bottom: 20px; }
         .profile-stats { display: flex; justify-content: center; gap: 32px; margin-bottom: 24px; flex-wrap: wrap; }
-        .stat-item { text-align: center; cursor: pointer; }
+        .stat-item { text-align: center; }
         .stat-number { font-size: 1.5rem; font-weight: 800; background: var(--gradient-2); background-clip: text; -webkit-background-clip: text; color: transparent; }
         .stat-label { font-size: 0.8rem; color: var(--tg-hint); }
         .edit-profile-btn { display: block; width: fit-content; margin: 0 auto 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 10px 28px; border-radius: 40px; color: var(--tg-text); font-weight: 600; cursor: pointer; }
-        .profile-bio { text-align: center; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 20px; color: var(--tg-hint); }
+        .profile-bio { text-align: center; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 20px; color: var(--tg-hint); line-height: 1.6; }
         .profile-sections { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
-        .section-tab { flex: 1; padding: 14px 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 60px; cursor: pointer; text-align: center; font-weight: 700; color: var(--tg-hint); }
-        .section-tab.active { background: var(--gradient-1); color: white; }
+        .section-tab { flex: 1; padding: 14px 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 60px; cursor: pointer; text-align: center; font-weight: 700; color: var(--tg-hint); transition: all 0.3s; }
+        .section-tab.active { background: var(--gradient-1); color: white; box-shadow: var(--glow); }
         .section-tab span { font-size: 0.85rem; margin-left: 8px; }
         .items-list { display: flex; flex-direction: column; gap: 16px; }
         .item-row { background: var(--card-bg); border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(255,255,255,0.05); }
-        .item-cover-small { width: 60px; height: 60px; border-radius: 16px; background: var(--gradient-1); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .item-cover-small { width: 60px; height: 60px; border-radius: 16px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--gradient-1); }
+        .item-cover-small img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
         .item-info { flex: 1; }
         .item-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
         .item-price { font-size: 0.9rem; font-weight: 600; color: #a78bfa; }
+        .item-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
         .item-actions { display: flex; gap: 8px; }
         .item-actions button { background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--tg-text); cursor: pointer; transition: all 0.2s; }
-        .item-play-btn { background: none; border: none; color: var(--tg-text); font-size: 1.3rem; cursor: pointer; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-
-        /* Модальные окна */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); z-index: 1000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: all 0.3s; }
-        .modal-overlay.active { visibility: visible; opacity: 1; }
-        .modal-content { background: var(--card-bg); border-radius: 32px; padding: 32px; max-width: 550px; width: 90%; max-height: 85vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); }
+        .upload-form { background: var(--card-bg); border-radius: 32px; padding: 32px; max-width: 600px; margin: 0 auto; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: var(--tg-text); }
-        .upload-area { border: 2px dashed rgba(255,255,255,0.2); border-radius: 20px; padding: 20px; text-align: center; cursor: pointer; }
-        .submit-btn { width: 100%; background: var(--gradient-1); border: none; padding: 14px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        .close-modal { margin-top: 12px; background: none; border: 1px solid rgba(255,255,255,0.2); padding: 12px; border-radius: 40px; color: var(--tg-text); cursor: pointer; width: 100%; }
-
+        .form-group input, .form-group select { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: var(--tg-text); font-size: 1rem; }
+        .form-group select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; }
+        .form-group textarea { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: var(--tg-text); font-size: 1rem; resize: vertical; min-height: 80px; }
+        .upload-area { border: 2px dashed rgba(255,255,255,0.2); border-radius: 20px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-area:hover { border-color: #7c3aed; background: rgba(124,58,237,0.05); }
+        .upload-status { font-size: 0.85rem; margin-top: 8px; }
+        .upload-status.success { color: var(--success); }
+        .submit-beat-btn { width: 100%; background: var(--gradient-1); border: none; padding: 14px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; margin-top: 10px; transition: transform 0.2s; }
+        .button-group { display: flex; gap: 12px; margin-top: 20px; }
+        .cancel-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 14px; border-radius: 40px; color: var(--tg-text); font-weight: 600; cursor: pointer; flex: 1; }
+        .delete-btn { background: rgba(245,87,108,0.2); border: 1px solid #f5576c; color: #f5576c; }
+        .registration-card { background: var(--card-bg); border-radius: 32px; padding: 32px; border: 1px solid rgba(255,255,255,0.1); }
+        .signature-area { border: 2px dashed rgba(255,255,255,0.2); border-radius: 20px; padding: 16px; margin-top: 8px; }
+        .signature-canvas-container { background: white; border-radius: 12px; margin-bottom: 12px; }
+        canvas.signature-canvas { display: block; width: 100%; height: 150px; background: white; border-radius: 12px; cursor: crosshair; touch-action: none; }
+        .signature-buttons { display: flex; gap: 12px; justify-content: center; }
+        .signature-buttons button { background: rgba(255,255,255,0.1); border: none; padding: 8px 16px; border-radius: 30px; color: var(--tg-text); cursor: pointer; }
+        .register-submit-btn { width: 100%; background: var(--gradient-1); border: none; padding: 16px; border-radius: 60px; color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 20px; }
         .audio-player { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 24px; z-index: 100; transform: translateY(100%); transition: transform 0.3s; }
         .audio-player.active { transform: translateY(0); }
         .player-content { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         .player-info { flex: 1; min-width: 150px; }
         .player-controls { display: flex; gap: 16px; }
+        .player-controls button { background: none; border: none; color: var(--tg-text); font-size: 1.2rem; cursor: pointer; }
         .progress-bar { flex: 2; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; cursor: pointer; }
         .progress-fill { height: 100%; background: var(--gradient-1); border-radius: 2px; width: 0%; }
-        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); padding: 12px 24px; border-radius: 60px; z-index: 1100; transition: all 0.3s; white-space: nowrap; }
-        @media (max-width: 768px) { .app-container { padding: 16px; } .nav-tab span { display: none; } .nav-tab i { font-size: 1.3rem; } .toast { white-space: normal; max-width: 90%; } }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); z-index: 1000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: all 0.3s; }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-content { background: var(--card-bg); border-radius: 32px; padding: 32px; max-width: 550px; width: 90%; max-height: 85vh; overflow-y: auto; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); padding: 12px 24px; border-radius: 60px; z-index: 1100; transition: all 0.3s; white-space: nowrap; font-weight: 500; }
+        @media (max-width: 768px) { .app-container { padding: 16px; } .nav-tab span { display: none; } .nav-tab i { font-size: 1.3rem; } .toast { white-space: normal; max-width: 90%; text-align: center; } }
     </style>
 </head>
 <body>
@@ -114,48 +140,26 @@
     </div>
 
     <div id="homePage" class="page active">
-        <div class="market-header"><h2><i class="fas fa-music"></i> Каталог битов</h2><button class="cart-btn" id="cartBtn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button></div>
-        <div class="filters" id="filtersContainer"></div>
+        <div class="market-header"><h2><i class="fas fa-store"></i> Маркетплейс</h2><button class="cart-btn" id="cartBtn"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button></div>
+        <div class="popular-section"><div class="popular-title"><i class="fas fa-chart-line"></i> Популярное за последнее время</div><div class="popular-grid" id="popularBeatsGrid"></div></div>
+        <div class="popular-section"><div class="popular-title"><i class="fas fa-crown"></i> Популярные битмейкеры</div><div class="popular-grid" id="popularProducersGrid"></div></div>
+        <div class="main-sections">
+            <div class="main-tab active" data-main="beats">🎵 Биты</div>
+            <div class="main-tab" data-main="kits">📦 Киты</div>
+            <div class="main-tab" data-main="services">💼 Услуги</div>
+        </div>
+        <div class="search-bar"><i class="fas fa-search search-icon"></i><input type="text" class="search-input" id="searchInput" placeholder="Поиск по названию, битмейкеру, тегам, BPM..."></div>
         <div class="beats-grid" id="beatsGrid"></div>
     </div>
 
-    <div id="uploadPage" class="page">
-        <div style="background: var(--card-bg); border-radius: 32px; padding: 24px; margin-bottom: 24px;">
-            <div class="profile-sections" style="margin-bottom: 0;">
-                <div class="section-tab active" data-upload-type="beat"><i class="fas fa-music"></i> Биты</div>
-                <div class="section-tab" data-upload-type="kit"><i class="fas fa-drumstick-bite"></i> Киты</div>
-                <div class="section-tab" data-upload-type="service"><i class="fas fa-hand-sparkles"></i> Услуги</div>
-            </div>
-        </div>
-        <div id="uploadFormContainer" class="upload-form" style="background: var(--card-bg); border-radius: 32px; padding: 32px;"></div>
-    </div>
-
-    <div id="favoritesPage" class="page"><h2 style="margin-bottom: 24px;"><i class="fas fa-heart"></i> Избранное</h2><div class="beats-grid" id="favoritesGrid"></div></div>
-
-    <div id="profilePage" class="page">
-        <div class="profile-header">
-            <div class="profile-avatar-large" id="profileAvatarLarge"><i class="fas fa-user"></i></div>
-            <div class="profile-username" id="profileUsername"></div>
-            <div class="profile-stats">
-                <div class="stat-item"><div class="stat-number" id="playsCount">0</div><div class="stat-label">прослушиваний</div></div>
-                <div class="stat-item"><div class="stat-number" id="likesCount">0</div><div class="stat-label">лайков</div></div>
-                <div class="stat-item"><div class="stat-number" id="followersCount">0</div><div class="stat-label">подписчиков</div></div>
-            </div>
-            <button class="edit-profile-btn" id="openEditProfileBtn"><i class="fas fa-edit"></i> Редактировать профиль</button>
-            <div class="profile-bio" id="profileBioText"></div>
-        </div>
-        <div class="profile-sections">
-            <div class="section-tab active" data-section="beats"><i class="fas fa-music"></i> Биты <span id="beatsCountSpan">(0)</span></div>
-            <div class="section-tab" data-section="kits"><i class="fas fa-drumstick-bite"></i> Киты <span id="kitsCountSpan">(0)</span></div>
-            <div class="section-tab" data-section="services"><i class="fas fa-hand-sparkles"></i> Услуги <span id="servicesCountSpan">(0)</span></div>
-        </div>
-        <div id="profileItemsContainer" class="items-list"></div>
-    </div>
+    <div id="uploadPage" class="page"><div id="uploadFormContainer"></div></div>
+    <div id="favoritesPage" class="page"><h2 style="margin-bottom: 24px;"><i class="fas fa-heart"></i> Избранное</h2><div class="search-bar"><i class="fas fa-search search-icon"></i><input type="text" class="search-input" id="favSearchInput" placeholder="Поиск в избранном..."></div><div id="favoritesGrid"></div></div>
+    <div id="profilePage" class="page"><div id="profileContent"></div></div>
 </div>
 
 <div class="audio-player" id="audioPlayer"><div class="player-content"><div class="player-info"><div id="currentTrackTitle"></div><div id="currentTrackProducer" style="font-size:0.75rem;"></div></div><div class="player-controls"><button id="playPauseBtn"><i class="fas fa-play"></i></button><button id="stopBtn"><i class="fas fa-stop"></i></button></div><div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div></div></div>
-<div id="cartModal" class="modal-overlay"><div class="modal-content"><h2>🛒 Корзина</h2><div id="cartItemsList"></div><div id="cartTotal" style="font-size:1.3rem; margin:20px 0;"></div><button id="checkoutBtn" class="submit-btn">Оформить</button><button id="closeCartModal" class="close-modal">Закрыть</button></div></div>
-<div id="editProfileModal" class="modal-overlay"><div class="modal-content"><h2>✏️ Редактировать профиль</h2><div class="form-group"><label>Ник</label><input type="text" id="editName" placeholder="Ваше имя"></div><div class="form-group"><label>Юзернейм в Telegram</label><input type="text" id="editTelegram" placeholder="@username"></div><div class="form-group"><label>Описание</label><textarea id="editBio" rows="3" placeholder="О себе"></textarea></div><div class="form-group"><label>Ссылки на соцсети (через запятую)</label><input type="text" id="editSocials" placeholder="https://instagram.com/..., https://soundcloud.com/..."></div><button id="saveProfileChangesBtn" class="submit-btn">Сохранить</button><button id="closeEditProfileModal" class="close-modal">Отмена</button></div></div>
+<div id="cartModal" class="modal-overlay"><div class="modal-content"><h2>🛒 Корзина</h2><div id="cartItemsList"></div><div id="cartTotal" style="font-size:1.3rem; margin:20px 0;"></div><button id="checkoutBtn" class="submit-beat-btn" style="margin-top:0;">Оформить</button><button id="closeCartModal" class="cancel-btn" style="margin-top:12px;">Закрыть</button></div></div>
+<div id="editProfileModal" class="modal-overlay"><div class="modal-content"><h2>✏️ Редактировать профиль</h2><div class="form-group"><label>Никнейм</label><input type="text" id="editName"></div><div class="form-group"><label>E-mail</label><input type="email" id="editEmail"></div><div class="form-group"><label>Telegram username</label><input type="text" id="editTelegram" placeholder="@username"></div><div class="form-group"><label>О себе</label><textarea id="editBio" rows="3"></textarea></div><div class="form-group"><label>Соцсети</label><input type="text" id="editSocials" placeholder="https://..."></div><div class="form-group"><label>Подпись</label><div class="signature-area"><div class="signature-canvas-container"><canvas id="editSignatureCanvas" width="400" height="150"></canvas></div><div class="signature-buttons"><button id="clearEditSignature">Очистить</button><button id="undoEditSignature">Отменить</button></div></div></div><div class="button-group"><button id="saveProfileChangesBtn" class="submit-beat-btn">Сохранить</button><button id="closeEditProfileModal" class="cancel-btn">Отмена</button></div></div></div>
 <div id="editItemModal" class="modal-overlay"><div class="modal-content" id="editItemModalContent"></div></div>
 <div id="toast" class="toast" style="opacity:0; visibility:hidden;"></div>
 
@@ -163,162 +167,587 @@
     let tg = window.Telegram?.WebApp;
     if (tg) { tg.expand(); tg.ready(); }
 
-    const DEMO_AUDIOS = ["https://actions.google.com/sound/bar.mp3","https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"];
+    let isRegistered = localStorage.getItem('beatwave_registered') === 'true';
+    let currentUser = null;
+    
+    const keyOptions = ["C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B", "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"];
     
     let beatsCatalog = JSON.parse(localStorage.getItem('beatwave_catalog') || JSON.stringify([
-        { id: 1, title: "Midnight Vibe", producer: "Музыкант", genre: "trap", price: 29.99, bpm: 140, key: "A Minor", cover: null, audioUrl: DEMO_AUDIOS[1], type: "beat", authorId: 1 },
-        { id: 2, title: "Sunset Melody", producer: "Музыкант", genre: "lofi", price: 24.99, bpm: 85, key: "C Major", cover: null, audioUrl: DEMO_AUDIOS[1], type: "beat", authorId: 1 }
+        { id: 1, title: "Midnight Vibe", producer: "LXRY BEATS", tags: "trap, dark", bpm: 140, key: "A Minor", price: 2990, cover: null, audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", plays: 245, type: "beat", authorId: 1 },
+        { id: 2, title: "Sunset Melody", producer: "SoulProd", tags: "lofi, chill", bpm: 85, key: "C Major", price: 2490, cover: null, audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", plays: 189, type: "beat", authorId: 2 },
+        { id: 3, title: "Rage Mode", producer: "BassKick", tags: "trap, aggressive", bpm: 150, key: "D# Minor", price: 3490, cover: null, audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", plays: 312, type: "beat", authorId: 3 }
     ]));
-    
-    let kitsCatalog = JSON.parse(localStorage.getItem('beatwave_kits') || JSON.stringify([
-        { id: "k1", title: "808 Drum Kit", price: 19.99, description: "Набор ударных 808", cover: null, fileUrl: null, type: "kit", authorId: 1 },
-        { id: "k2", title: "Melody Loops Pack", price: 24.99, description: "Мелодические лупы", cover: null, fileUrl: null, type: "kit", authorId: 1 }
-    ]));
-    
-    let servicesCatalog = JSON.parse(localStorage.getItem('beatwave_services') || JSON.stringify([
-        { id: "s1", title: "Сведение трека", price: 49.99, description: "Профессиональное сведение", type: "service", authorId: 1 },
-        { id: "s2", title: "Мастеринг", price: 39.99, description: "Финальная обработка", type: "service", authorId: 1 }
-    ]));
-
-    let profileData = JSON.parse(localStorage.getItem('beatwave_profile') || JSON.stringify({
-        name: "Музыкант", bio: "🎧 Продюсер из Москвы. Создаю биты для души.", telegram: "@musician", socials: "https://instagram.com/musician", plays: 1247, likes: 342, followers: 89
-    }));
-
+    let kitsCatalog = JSON.parse(localStorage.getItem('beatwave_kits') || '[]');
+    let servicesCatalog = JSON.parse(localStorage.getItem('beatwave_services') || '[]');
     let cart = JSON.parse(localStorage.getItem('beatwave_cart') || '[]');
     let favorites = JSON.parse(localStorage.getItem('beatwave_favorites') || '[]');
-    let currentGenre = "all";
+    let currentMainType = "beats";
     let currentUploadType = "beat";
     let currentProfileSection = "beats";
     let currentAudio = null, isPlaying = false;
-    let editingItem = null;
+    let searchQuery = "";
+    let favSearchQuery = "";
 
-    function saveAll() { localStorage.setItem('beatwave_catalog', JSON.stringify(beatsCatalog)); localStorage.setItem('beatwave_kits', JSON.stringify(kitsCatalog)); localStorage.setItem('beatwave_services', JSON.stringify(servicesCatalog)); localStorage.setItem('beatwave_profile', JSON.stringify(profileData)); localStorage.setItem('beatwave_cart', JSON.stringify(cart)); localStorage.setItem('beatwave_favorites', JSON.stringify(favorites)); }
-    function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.style.opacity='1'; t.style.visibility='visible'; setTimeout(()=>{t.style.opacity='0';t.style.visibility='hidden';},2000); }
-    function isFavorite(id) { return favorites.includes(id); }
-    function toggleFavorite(id) { if(favorites.includes(id)) favorites = favorites.filter(f=>f!==id); else favorites.push(id); saveAll(); renderBeats(); renderFavorites(); }
-    function addToCart(item, type) { let ex=cart.find(i=>i.id===item.id && i.type===type); if(ex) ex.quantity++; else cart.push({...item, type, quantity:1}); saveAll(); updateCartUI(); showToast(`✅ ${item.title} в корзине`); }
-    function removeFromCart(id, type) { cart = cart.filter(i=>!(i.id===id && i.type===type)); saveAll(); updateCartUI(); showToast("Удалено"); }
-    function updateCartUI() { document.getElementById('cartCount').innerText = cart.reduce((s,i)=>s+i.quantity,0); renderCartModal(); }
-    function renderCartModal() { const cont=document.getElementById('cartItemsList'); if(!cont) return; if(cart.length===0){ cont.innerHTML='<div style="text-align:center;padding:40px;">Пусто</div>'; document.getElementById('cartTotal').innerHTML='Итого: $0'; return; } let total=0; cont.innerHTML=cart.map(i=>{ total+=i.price*i.quantity; return `<div class="cart-item"><div><strong>${escapeHtml(i.title)}</strong><br><small>x${i.quantity}</small></div><div><span>$${(i.price*i.quantity).toFixed(2)}</span><button class="remove-item" data-id="${i.id}" data-type="${i.type}"><i class="fas fa-trash"></i></button></div></div>`; }).join(''); document.getElementById('cartTotal').innerHTML=`Итого: $${total.toFixed(2)}`; document.querySelectorAll('.remove-item').forEach(btn=>btn.addEventListener('click',()=>removeFromCart(btn.dataset.id, btn.dataset.type))); }
-    
-    function playAudio(url, title, producer) { if(currentAudio) currentAudio.pause(); currentAudio=new Audio(url); const playBtn=document.getElementById('playPauseBtn'), fill=document.getElementById('progressFill'); currentAudio.addEventListener('timeupdate',()=>{ if(currentAudio?.duration) fill.style.width=`${(currentAudio.currentTime/currentAudio.duration)*100}%`; }); currentAudio.addEventListener('ended',()=>{ playBtn.innerHTML='<i class="fas fa-play"></i>'; isPlaying=false; fill.style.width='0%'; }); currentAudio.play(); playBtn.innerHTML='<i class="fas fa-pause"></i>'; isPlaying=true; document.getElementById('currentTrackTitle').innerText=title; document.getElementById('currentTrackProducer').innerText=producer; document.getElementById('audioPlayer').classList.add('active'); }
-    function initAudioPlayer() { const playBtn=document.getElementById('playPauseBtn'), stopBtn=document.getElementById('stopBtn'), prog=document.getElementById('progressBar'), fill=document.getElementById('progressFill'); playBtn.onclick=()=>{ if(!currentAudio) return; if(isPlaying){ currentAudio.pause(); playBtn.innerHTML='<i class="fas fa-play"></i>'; isPlaying=false; } else { currentAudio.play(); playBtn.innerHTML='<i class="fas fa-pause"></i>'; isPlaying=true; } }; stopBtn.onclick=()=>{ if(currentAudio){ currentAudio.pause(); currentAudio.currentTime=0; playBtn.innerHTML='<i class="fas fa-play"></i>'; isPlaying=false; fill.style.width='0%'; } }; prog.onclick=(e)=>{ if(!currentAudio) return; const rect=prog.getBoundingClientRect(); const percent=(e.clientX-rect.left)/rect.width; currentAudio.currentTime=percent*currentAudio.duration; }; }
+    function saveAll() {
+        localStorage.setItem('beatwave_catalog', JSON.stringify(beatsCatalog));
+        localStorage.setItem('beatwave_kits', JSON.stringify(kitsCatalog));
+        localStorage.setItem('beatwave_services', JSON.stringify(servicesCatalog));
+        localStorage.setItem('beatwave_cart', JSON.stringify(cart));
+        localStorage.setItem('beatwave_favorites', JSON.stringify(favorites));
+        if (currentUser) localStorage.setItem('beatwave_user', JSON.stringify(currentUser));
+    }
+    function showToast(msg, duration=2500) { const t=document.getElementById('toast'); t.textContent=msg; t.style.opacity='1'; t.style.visibility='visible'; setTimeout(()=>{ t.style.opacity='0'; t.style.visibility='hidden'; }, duration); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;' })[m]); }
+    function formatPrice(price) { return new Intl.NumberFormat('ru-RU').format(price) + ' ₽'; }
 
-    function renderBeats() { const grid=document.getElementById('beatsGrid'); let filtered=currentGenre==='all'?beatsCatalog:beatsCatalog.filter(b=>b.genre===currentGenre); if(filtered.length===0){ grid.innerHTML='<div style="text-align:center;padding:60px;">Нет битов</div>'; return; } grid.innerHTML=filtered.map(beat=>`<div class="beat-card"><div class="beat-cover ${!beat.cover?'default':''}" style="${beat.cover?`background-image: url(${beat.cover})`:''}"><div class="play-overlay"><div class="play-btn" data-audio="${beat.audioUrl}" data-title="${escapeHtml(beat.title)}" data-producer="${escapeHtml(beat.producer)}"><i class="fas fa-play"></i></div></div></div><div class="beat-info"><div class="beat-title">${escapeHtml(beat.title)}</div><div class="beat-producer">${escapeHtml(beat.producer)}</div><div class="beat-tags"><span class="tag">${beat.genre}</span><span class="tag">${beat.bpm} BPM</span><span class="tag">${beat.key}</span></div><div class="price">$${beat.price}</div><div class="action-buttons"><button class="favorite-btn ${isFavorite(beat.id)?'active':''}" data-id="${beat.id}"><i class="fas fa-heart"></i></button><button class="add-to-cart" data-id="${beat.id}" data-type="beat"><i class="fas fa-cart-plus"></i> Купить</button></div></div></div>`).join(''); document.querySelectorAll('.play-btn').forEach(btn=>btn.addEventListener('click',()=>playAudio(btn.dataset.audio, btn.dataset.title, btn.dataset.producer))); document.querySelectorAll('.add-to-cart').forEach(btn=>btn.addEventListener('click',()=>addToCart(beatsCatalog.find(b=>b.id==parseInt(btn.dataset.id)), 'beat'))); document.querySelectorAll('.favorite-btn').forEach(btn=>btn.addEventListener('click',()=>toggleFavorite(parseInt(btn.dataset.id)))); }
-    function renderFavorites() { const grid=document.getElementById('favoritesGrid'); const fav=beatsCatalog.filter(b=>favorites.includes(b.id)); if(fav.length===0){ grid.innerHTML='<div style="text-align:center;padding:60px;">Нет избранного</div>'; return; } grid.innerHTML=fav.map(beat=>`<div class="beat-card">...</div>`).join(''); }
-    function renderFilters() { const genres=['all',...new Set(beatsCatalog.map(b=>b.genre))]; document.getElementById('filtersContainer').innerHTML=genres.map(g=>`<div class="filter-chip ${currentGenre===g?'active':''}" data-genre="${g}">${g==='all'?'Все':g.toUpperCase()}</div>`).join(''); document.querySelectorAll('.filter-chip').forEach(chip=>chip.addEventListener('click',()=>{ currentGenre=chip.dataset.genre; renderFilters(); renderBeats(); })); }
-
-    function renderProfile() {
-        document.getElementById('profileUsername').innerText = profileData.name;
-        document.getElementById('profileBioText').innerText = profileData.bio;
-        document.getElementById('playsCount').innerText = profileData.plays;
-        document.getElementById('likesCount').innerText = profileData.likes;
-        document.getElementById('followersCount').innerText = profileData.followers;
-        const avatarDiv = document.getElementById('profileAvatarLarge');
-        if (profileData.avatar) avatarDiv.innerHTML = `<img src="${profileData.avatar}">`;
-        else avatarDiv.innerHTML = '<i class="fas fa-user"></i>';
-        document.getElementById('beatsCountSpan').innerText = `(${beatsCatalog.filter(b=>b.authorId===1).length})`;
-        document.getElementById('kitsCountSpan').innerText = `(${kitsCatalog.filter(k=>k.authorId===1).length})`;
-        document.getElementById('servicesCountSpan').innerText = `(${servicesCatalog.filter(s=>s.authorId===1).length})`;
-        renderProfileSection(currentProfileSection);
+    function playAudio(url, title, producer) {
+        if(!url) { showToast("Аудио недоступно"); return; }
+        if(currentAudio) currentAudio.pause();
+        currentAudio = new Audio(url);
+        const playBtn = document.getElementById('playPauseBtn'), fill = document.getElementById('progressFill');
+        currentAudio.addEventListener('timeupdate', () => { if(currentAudio?.duration) fill.style.width = `${(currentAudio.currentTime/currentAudio.duration)*100}%`; });
+        currentAudio.addEventListener('ended', () => { playBtn.innerHTML = '<i class="fas fa-play"></i>'; isPlaying = false; fill.style.width = '0%'; });
+        currentAudio.play();
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        isPlaying = true;
+        document.getElementById('currentTrackTitle').innerText = title;
+        document.getElementById('currentTrackProducer').innerText = producer;
+        document.getElementById('audioPlayer').classList.add('active');
+        if(currentUser) { currentUser.plays = (currentUser.plays || 0) + 1; saveAll(); }
     }
-    function renderProfileSection(section) {
-        const container = document.getElementById('profileItemsContainer');
-        if (section === 'beats') {
-            const items = beatsCatalog.filter(b=>b.authorId===1);
-            if(items.length===0){ container.innerHTML='<div class="empty-section">Нет битов</div>'; return; }
-            container.innerHTML = items.map(item=>`<div class="item-row"><div class="item-cover-small ${!item.cover?'default':''}" style="${item.cover?`background-image:url(${item.cover})`:''}"><i class="fas fa-headphones"></i></div><div class="item-info"><div class="item-title">${escapeHtml(item.title)}</div><div class="item-price">$${item.price}</div></div><div class="item-actions"><button class="item-play-btn" data-audio="${item.audioUrl}" data-title="${escapeHtml(item.title)}" data-producer="${escapeHtml(item.producer)}"><i class="fas fa-play"></i></button><button class="edit-item-btn" data-id="${item.id}" data-type="beat"><i class="fas fa-edit"></i></button><button class="delete-item-btn" data-id="${item.id}" data-type="beat"><i class="fas fa-trash"></i></button></div></div>`).join('');
-        } else if (section === 'kits') {
-            const items = kitsCatalog.filter(k=>k.authorId===1);
-            if(items.length===0){ container.innerHTML='<div class="empty-section">Нет китов</div>'; return; }
-            container.innerHTML = items.map(item=>`<div class="item-row"><div class="item-cover-small ${!item.cover?'default':''}" style="${item.cover?`background-image:url(${item.cover})`:''}"><i class="fas fa-drum"></i></div><div class="item-info"><div class="item-title">${escapeHtml(item.title)}</div><div class="item-price">$${item.price}</div><div style="font-size:0.75rem;">${escapeHtml(item.description)}</div></div><div class="item-actions"><button class="edit-item-btn" data-id="${item.id}" data-type="kit"><i class="fas fa-edit"></i></button><button class="delete-item-btn" data-id="${item.id}" data-type="kit"><i class="fas fa-trash"></i></button></div></div>`).join('');
-        } else if (section === 'services') {
-            const items = servicesCatalog.filter(s=>s.authorId===1);
-            if(items.length===0){ container.innerHTML='<div class="empty-section">Нет услуг</div>'; return; }
-            container.innerHTML = items.map(item=>`<div class="item-row"><div class="item-cover-small default"><i class="fas fa-cogs"></i></div><div class="item-info"><div class="item-title">${escapeHtml(item.title)}</div><div class="item-price">$${item.price}</div><div style="font-size:0.75rem;">${escapeHtml(item.description)}</div></div><div class="item-actions"><button class="edit-item-btn" data-id="${item.id}" data-type="service"><i class="fas fa-edit"></i></button><button class="delete-item-btn" data-id="${item.id}" data-type="service"><i class="fas fa-trash"></i></button></div></div>`).join('');
-        }
-        document.querySelectorAll('.item-play-btn').forEach(btn=>btn.addEventListener('click',()=>playAudio(btn.dataset.audio, btn.dataset.title, btn.dataset.producer)));
-        document.querySelectorAll('.edit-item-btn').forEach(btn=>btn.addEventListener('click',()=>openEditModal(btn.dataset.id, btn.dataset.type)));
-        document.querySelectorAll('.delete-item-btn').forEach(btn=>btn.addEventListener('click',()=>{ if(confirm('Удалить?')) deleteItem(btn.dataset.id, btn.dataset.type); }));
-    }
-    function deleteItem(id, type) {
-        if(type==='beat') beatsCatalog = beatsCatalog.filter(i=>i.id!=id);
-        else if(type==='kit') kitsCatalog = kitsCatalog.filter(i=>i.id!=id);
-        else if(type==='service') servicesCatalog = servicesCatalog.filter(i=>i.id!=id);
-        saveAll(); renderProfile(); showToast("Удалено");
-    }
-    function openEditModal(id, type) {
-        editingItem = { id, type };
-        let item, html='';
-        if(type==='beat') item = beatsCatalog.find(i=>i.id==id);
-        else if(type==='kit') item = kitsCatalog.find(i=>i.id==id);
-        else item = servicesCatalog.find(i=>i.id==id);
-        if(type==='beat') html=`<h2>✏️ Редактировать бит</h2><div class="form-group"><label>Название</label><input id="editTitle" value="${escapeHtml(item.title)}"></div><div class="form-group"><label>Жанр</label><input id="editGenre" value="${item.genre}"></div><div class="form-group"><label>Цена</label><input id="editPrice" type="number" value="${item.price}"></div><div class="form-group"><label>BPM</label><input id="editBpm" value="${item.bpm}"></div><div class="form-group"><label>Тональность</label><input id="editKey" value="${item.key}"></div><div class="form-group"><label>Обложка</label><div class="upload-area" id="editCoverArea">Нажмите для загрузки<input type="file" id="editCoverFile" accept="image/*" style="display:none"></div></div><div class="form-group"><label>Аудио</label><div class="upload-area" id="editAudioArea">Заменить аудио<input type="file" id="editAudioFile" accept="audio/*" style="display:none"></div></div><button id="saveEditBtn" class="submit-btn">Сохранить</button><button id="closeEditModal" class="close-modal">Отмена</button>`;
-        else if(type==='kit') html=`<h2>✏️ Редактировать кит</h2><div class="form-group"><label>Название</label><input id="editTitle" value="${escapeHtml(item.title)}"></div><div class="form-group"><label>Цена</label><input id="editPrice" type="number" value="${item.price}"></div><div class="form-group"><label>Описание</label><textarea id="editDesc">${escapeHtml(item.description)}</textarea></div><div class="form-group"><label>Обложка</label><div class="upload-area" id="editCoverArea">Нажмите для загрузки<input type="file" id="editCoverFile" accept="image/*" style="display:none"></div></div><button id="saveEditBtn" class="submit-btn">Сохранить</button><button id="closeEditModal" class="close-modal">Отмена</button>`;
-        else html=`<h2>✏️ Редактировать услугу</h2><div class="form-group"><label>Название</label><input id="editTitle" value="${escapeHtml(item.title)}"></div><div class="form-group"><label>Цена</label><input id="editPrice" type="number" value="${item.price}"></div><div class="form-group"><label>Описание</label><textarea id="editDesc">${escapeHtml(item.description)}</textarea></div><button id="saveEditBtn" class="submit-btn">Сохранить</button><button id="closeEditModal" class="close-modal">Отмена</button>`;
-        document.getElementById('editItemModalContent').innerHTML = html;
-        document.getElementById('editItemModal').classList.add('active');
-        document.getElementById('saveEditBtn').onclick = () => saveEdit();
-        document.getElementById('closeEditModal').onclick = () => document.getElementById('editItemModal').classList.remove('active');
-        if(type!=='service'){
-            document.getElementById('editCoverArea')?.addEventListener('click',()=>document.getElementById('editCoverFile').click());
-            document.getElementById('editCoverFile')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>item.cover=ev.target.result; r.readAsDataURL(e.target.files[0]); showToast("Обложка обновлена"); } });
-        }
-        if(type==='beat'){
-            document.getElementById('editAudioArea')?.addEventListener('click',()=>document.getElementById('editAudioFile').click());
-            document.getElementById('editAudioFile')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>item.audioUrl=ev.target.result; r.readAsDataURL(e.target.files[0]); showToast("Аудио обновлено"); } });
-        }
-    }
-    function saveEdit() {
-        if(editingItem.type==='beat'){ let item=beatsCatalog.find(i=>i.id==editingItem.id); item.title=document.getElementById('editTitle').value; item.genre=document.getElementById('editGenre').value; item.price=parseFloat(document.getElementById('editPrice').value); item.bpm=parseInt(document.getElementById('editBpm').value); item.key=document.getElementById('editKey').value; }
-        else if(editingItem.type==='kit'){ let item=kitsCatalog.find(i=>i.id==editingItem.id); item.title=document.getElementById('editTitle').value; item.price=parseFloat(document.getElementById('editPrice').value); item.description=document.getElementById('editDesc').value; }
-        else{ let item=servicesCatalog.find(i=>i.id==editingItem.id); item.title=document.getElementById('editTitle').value; item.price=parseFloat(document.getElementById('editPrice').value); item.description=document.getElementById('editDesc').value; }
-        saveAll(); renderProfile(); document.getElementById('editItemModal').classList.remove('active'); showToast("Сохранено");
+    function initAudioPlayer() {
+        const playBtn = document.getElementById('playPauseBtn'), stopBtn = document.getElementById('stopBtn'), prog = document.getElementById('progressBar'), fill = document.getElementById('progressFill');
+        playBtn.onclick = () => { if(!currentAudio) return; if(isPlaying) { currentAudio.pause(); playBtn.innerHTML = '<i class="fas fa-play"></i>'; isPlaying = false; } else { currentAudio.play(); playBtn.innerHTML = '<i class="fas fa-pause"></i>'; isPlaying = true; } };
+        stopBtn.onclick = () => { if(currentAudio){ currentAudio.pause(); currentAudio.currentTime = 0; playBtn.innerHTML = '<i class="fas fa-play"></i>'; isPlaying = false; fill.style.width = '0%'; } };
+        prog.onclick = (e) => { if(!currentAudio) return; const rect = prog.getBoundingClientRect(); const percent = (e.clientX - rect.left) / rect.width; currentAudio.currentTime = percent * currentAudio.duration; };
     }
 
+    function getPopularBeats() { return [...beatsCatalog].sort((a,b) => (b.plays||0) - (a.plays||0)).slice(0, 6); }
+    function getPopularProducers() {
+        const producerPlays = {};
+        beatsCatalog.forEach(beat => { producerPlays[beat.producer] = (producerPlays[beat.producer] || 0) + (beat.plays||0); });
+        return Object.entries(producerPlays).sort((a,b) => b[1] - a[1]).slice(0, 6).map(([name]) => ({ name, plays: producerPlays[name] }));
+    }
+    function renderPopularBeats() {
+        const container = document.getElementById('popularBeatsGrid');
+        const popular = getPopularBeats();
+        if(popular.length === 0){ container.innerHTML = '<div style="color:var(--tg-hint);">Нет данных</div>'; return; }
+        container.innerHTML = popular.map(beat => `<div class="popular-beat-card" onclick="playAudio('${beat.audioUrl}','${escapeHtml(beat.title)}','${escapeHtml(beat.producer)}')"><div class="popular-beat-cover ${!beat.cover?'default':''}" style="${beat.cover?`background-image:url(${beat.cover})`:''}"></div><div class="popular-beat-info"><h4>${escapeHtml(beat.title)}</h4><p>${escapeHtml(beat.producer)}</p><p style="font-size:0.65rem;">🎧 ${beat.plays||0}</p></div></div>`).join('');
+    }
+    function renderPopularProducers() {
+        const container = document.getElementById('popularProducersGrid');
+        const popular = getPopularProducers();
+        if(popular.length === 0){ container.innerHTML = '<div style="color:var(--tg-hint);">Нет данных</div>'; return; }
+        container.innerHTML = popular.map(prod => `<div class="popular-producer-card"><div class="popular-producer-avatar"><i class="fas fa-user"></i></div><div><strong>${escapeHtml(prod.name)}</strong><p style="font-size:0.7rem; color:var(--tg-hint);">🎧 ${prod.plays} прослушиваний</p></div></div>`).join('');
+    }
+
+    function filterItems(items, query) {
+        if(!query) return items;
+        const q = query.toLowerCase();
+        return items.filter(item => 
+            item.title.toLowerCase().includes(q) || 
+            (item.producer || '').toLowerCase().includes(q) ||
+            (item.tags || '').toLowerCase().includes(q) || 
+            (item.bpm && item.bpm.toString().includes(q))
+        );
+    }
+
+    // Объединённая и исправленная renderMarket()
+
+function renderMarket() {
+
+    let items = [];
+    let currentType = "beat";
+
+    if(currentMainType === 'beats') {
+        items = beatsCatalog;
+        currentType = "beat";
+    }
+    else if(currentMainType === 'kits') {
+        items = kitsCatalog;
+        currentType = "kit";
+    }
+    else {
+        items = servicesCatalog;
+        currentType = "service";
+    }
+
+    items = filterItems(items, searchQuery);
+
+    const grid = document.getElementById('beatsGrid');
+
+    if(items.length === 0){
+        grid.innerHTML = `
+            <div style="text-align:center;padding:60px;">
+                Нет товаров
+            </div>
+        `;
+        return;
+    }
+
+    grid.innerHTML = items.map(item => {
+
+        // Показываем плеер только для битов
+        const isBeat = currentType === 'beat';
+
+        return `
+            <div class="beat-card">
+                <div class="beat-cover ${!item.cover ? 'default' : ''}"
+                     style="${item.cover ? `background-image: url(${item.cover})` : ''}">
+                    ${isBeat ? `
+                        <div class="play-overlay">
+                            <div class="play-btn"
+                                 data-audio="${item.audioUrl || ''}"
+                                 data-title="${escapeHtml(item.title)}"
+                                 data-producer="${escapeHtml(item.producer || 'BeatWave')}">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="beat-info">
+                    <div class="beat-title">
+                        ${escapeHtml(item.title)}
+                    </div>
+                    <div class="beat-producer">
+                        ${escapeHtml(item.producer || 'BeatWave')}
+                    </div>
+                    <div class="beat-tags">
+                        ${(item.tags || '')
+                            .split(',')
+                            .filter(t => t.trim())
+                            .map(t => `<span class="tag">${t.trim()}</span>`)
+                            .join('')}
+                    </div>
+                    ${
+                        item.bpm
+                        ? `
+                            <div class="beat-tags">
+                                <span class="tag">${item.bpm} BPM</span>
+                                ${item.key ? `<span class="tag">${item.key}</span>` : ''}
+                            </div>
+                          `
+                        : (
+                            item.key
+                            ? `
+                                <div class="beat-tags">
+                                    <span class="tag">${item.key}</span>
+                                </div>
+                              `
+                            : ''
+                          )
+                    }
+                    <div class="price">
+                        ${formatPrice(item.price)}
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="favorite-btn ${favorites.includes(item.id) ? 'active' : ''}"
+                                data-id="${item.id}"
+                                data-type="${currentType}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <button class="buy-btn"
+                                data-id="${item.id}"
+                                data-price="${item.price}"
+                                data-title="${escapeHtml(item.title)}">
+                            <i class="fas fa-shopping-cart"></i>
+                            Купить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // PLAY
+    document.querySelectorAll('.play-btn').forEach(btn => {
+        if(btn.dataset.audio){
+            btn.addEventListener('click', () => {
+                playAudio(
+                    btn.dataset.audio,
+                    btn.dataset.title,
+                    btn.dataset.producer
+                );
+            });
+        }
+    });
+
+    // BUY
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            addToCart({
+                id: btn.dataset.id,
+                title: btn.dataset.title,
+                price: parseFloat(btn.dataset.price)
+            });
+        });
+    });
+
+    // FAVORITES
+    document.querySelectorAll('.favorite-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            let id = btn.dataset.id;
+            // если ids числовые:
+            if(!isNaN(id)) id = parseInt(id);
+            if(favorites.includes(id)) {
+                favorites = favorites.filter(f => f !== id);
+                showToast("Удалено из избранного");
+            } else {
+                favorites.push(id);
+                showToast("Добавлено в избранное ❤️");
+            }
+            saveAll();
+            renderMarket();
+            renderFavorites();
+        });
+    });
+}
+
+    function renderFavorites() {
+        const container = document.getElementById('favoritesGrid');
+        let all = [...beatsCatalog.map(i=>({...i, type:'beat'})), ...kitsCatalog.map(i=>({...i, type:'kit'})), ...servicesCatalog.map(i=>({...i, type:'service'}))];
+        all = all.filter(item => favorites.includes(item.id));
+        all = filterItems(all, favSearchQuery);
+        if(all.length === 0){ container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--tg-hint);">Нет избранного</div>'; return; }
+        container.innerHTML = `<div class="beats-grid">${all.map(item => {
+            const isBeat = item.type === 'beat';
+            return `<div class="beat-card"><div class="beat-cover ${!item.cover ? 'default' : ''}" style="${item.cover ? `background-image: url(${item.cover})` : ''}">${isBeat ? `<div class="play-overlay"><div class="play-btn" data-audio="${item.audioUrl || ''}" data-title="${escapeHtml(item.title)}" data-producer="${escapeHtml(item.producer || 'BeatWave')}"><i class="fas fa-play"></i></div></div>` : ''}</div><div class="beat-info"><div class="beat-title">${escapeHtml(item.title)}</div><div class="beat-producer">${escapeHtml(item.producer || 'BeatWave')}</div><div class="beat-tags">${(item.tags || '').split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>${item.bpm ? `<div class="beat-tags"><span class="tag">${item.bpm} BPM</span>${item.key ? `<span class="tag">${item.key}</span>` : ''}</div>` : (item.key ? `<div class="beat-tags"><span class="tag">${item.key}</span></div>` : '')}<div class="price">${formatPrice(item.price)}</div><div class="action-buttons"><button class="favorite-btn active" data-id="${item.id}" data-type="${item.type}"><i class="fas fa-heart"></i></button><button class="buy-btn" data-id="${item.id}" data-price="${item.price}" data-title="${escapeHtml(item.title)}"><i class="fas fa-shopping-cart"></i> Купить</button></div></div></div>`;
+        }).join('')}</div>`;
+        document.querySelectorAll('#favoritesPage .play-btn').forEach(btn => { if(btn.dataset.audio) btn.addEventListener('click', () => playAudio(btn.dataset.audio, btn.dataset.title, btn.dataset.producer)); });
+        document.querySelectorAll('#favoritesPage .buy-btn').forEach(btn => btn.addEventListener('click', () => { addToCart({ id: btn.dataset.id, title: btn.dataset.title, price: parseFloat(btn.dataset.price) }); }));
+        document.querySelectorAll('#favoritesPage .favorite-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); favorites = favorites.filter(f => f !== btn.dataset.id); saveAll(); renderFavorites(); renderMarket(); showToast("Удалено из избранного"); }));
+    }
+
+    function addToCart(item) { let ex = cart.find(i => i.id === item.id); if(ex) ex.quantity++; else cart.push({ id: item.id, title: item.title, price: item.price, quantity: 1 }); saveAll(); updateCartUI(); showToast(`✅ ${item.title} в корзине`); }
+    function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveAll(); updateCartUI(); showToast("Удалено"); }
+    function updateCartUI() { document.getElementById('cartCount').innerText = cart.reduce((s,i)=>s+i.quantity,0); renderCartModal(); }
+    function renderCartModal() { const cont = document.getElementById('cartItemsList'); if(!cont) return; if(cart.length === 0){ cont.innerHTML = '<div style="text-align:center;padding:40px;">Корзина пуста</div>'; document.getElementById('cartTotal').innerHTML = 'Итого: 0 ₽'; return; } let total = 0; cont.innerHTML = cart.map(i => { total += i.price * i.quantity; return `<div class="cart-item"><div><strong>${escapeHtml(i.title)}</strong><br><small>x${i.quantity}</small></div><div><span>${formatPrice(i.price * i.quantity)}</span><button class="remove-item" data-id="${i.id}"><i class="fas fa-trash"></i></button></div></div>`; }).join(''); document.getElementById('cartTotal').innerHTML = `Итого: ${formatPrice(total)}`; document.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.id))); }
+
+    // Загрузка
     function renderUploadForm() {
         const container = document.getElementById('uploadFormContainer');
-        if(currentUploadType === 'beat') container.innerHTML = `<h2><i class="fas fa-cloud-upload-alt"></i> Загрузить бит</h2><div class="form-group"><label>Название</label><input id="beatTitle"></div><div class="form-group"><label>Жанр</label><select id="beatGenre"><option value="trap">Trap</option><option value="lofi">LoFi</option></select></div><div class="form-group"><label>Цена</label><input id="beatPrice" type="number"></div><div class="form-group"><label>BPM</label><input id="beatBpm" type="number"></div><div class="form-group"><label>Тональность</label><input id="beatKey"></div><div class="form-group"><label>Обложка</label><div class="upload-area" id="uploadCoverArea">Нажмите для загрузки<input type="file" id="coverFile" accept="image/*" style="display:none"></div></div><div class="form-group"><label>Аудио</label><div class="upload-area" id="uploadAudioArea">Нажмите для загрузки MP3<input type="file" id="audioFile" accept="audio/*" style="display:none"></div></div><button id="uploadSubmitBtn" class="submit-btn">Опубликовать</button>`;
-        else if(currentUploadType === 'kit') container.innerHTML = `<h2><i class="fas fa-drumstick-bite"></i> Загрузить кит</h2><div class="form-group"><label>Название</label><input id="kitTitle"></div><div class="form-group"><label>Цена</label><input id="kitPrice" type="number"></div><div class="form-group"><label>Описание</label><textarea id="kitDesc" rows="3"></textarea></div><div class="form-group"><label>Обложка</label><div class="upload-area" id="uploadCoverAreaKit">Нажмите для загрузки<input type="file" id="coverFileKit" accept="image/*" style="display:none"></div></div><div class="form-group"><label>ZIP/RAR файл</label><div class="upload-area" id="uploadZipArea">Нажмите для загрузки ZIP/RAR<input type="file" id="zipFile" accept=".zip,.rar" style="display:none"></div></div><button id="uploadSubmitBtnKit" class="submit-btn">Опубликовать</button>`;
-        else container.innerHTML = `<h2><i class="fas fa-hand-sparkles"></i> Добавить услугу</h2><div class="form-group"><label>Название услуги</label><input id="serviceTitle"></div><div class="form-group"><label>Цена</label><input id="servicePrice" type="number"></div><div class="form-group"><label>Описание</label><textarea id="serviceDesc" rows="3"></textarea></div><button id="uploadSubmitBtnService" class="submit-btn">Опубликовать</button>`;
-        attachUploadEvents();
+        if(!currentUser){ container.innerHTML = '<div class="upload-form" style="text-align:center;"><i class="fas fa-lock" style="font-size:3rem;"></i><p style="margin-top:16px;">Зарегистрируйтесь в профиле для загрузки</p></div>'; return; }
+        container.innerHTML = `<div style="margin-bottom:24px;"><div class="profile-sections" style="margin-bottom:0;"><div class="section-tab ${currentUploadType==='beat'?'active':''}" data-upload-type="beat">Биты</div><div class="section-tab ${currentUploadType==='kit'?'active':''}" data-upload-type="kit">Киты</div><div class="section-tab ${currentUploadType==='service'?'active':''}" data-upload-type="service">Услуги</div></div></div><div id="dynamicUploadForm"></div>`;
+        document.querySelectorAll('[data-upload-type]').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('[data-upload-type]').forEach(t => t.classList.remove('active')); tab.classList.add('active'); currentUploadType = tab.dataset.uploadType; renderDynamicForm(); }));
+        renderDynamicForm();
     }
-    function attachUploadEvents() {
+    
+    function renderDynamicForm() {
+        const container = document.getElementById('dynamicUploadForm');
+        if(currentUploadType === 'beat') container.innerHTML = `<div class="upload-form"><h3>Загрузить бит</h3><div class="form-group"><label>Название *</label><input id="beatTitle" placeholder="Введите название"></div><div class="form-group"><label>Тэги (через запятую)</label><input id="beatTags" placeholder="trap, dark, melodic"></div><div class="form-group"><label>Цена * (₽)</label><input id="beatPrice" type="number" step="100" placeholder="2990"></div><div class="form-group"><label>BPM</label><input id="beatBpm" type="number" placeholder="140"></div><div class="form-group"><label>Тональность</label><select id="beatKey" class="key-select"><option value="">Выберите тональность</option>${keyOptions.map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div><div class="form-group"><div class="upload-area" id="coverAreaBeat"><i class="fas fa-image"></i> Обложка (необязательно)<input type="file" id="coverFileBeat" accept="image/*" style="display:none"><div id="coverPreviewBeat" class="upload-status"></div></div></div><div class="form-group"><div class="upload-area" id="audioAreaBeat"><i class="fas fa-music"></i> Аудио файл *<input type="file" id="audioFileBeat" accept="audio/*" style="display:none"><div id="audioStatusBeat" class="upload-status"></div></div></div><button id="submitBeatBtn" class="submit-beat-btn">Опубликовать</button></div>`;
+        else if(currentUploadType === 'kit') container.innerHTML = `<div class="upload-form"><h3>Загрузить кит</h3><div class="form-group"><label>Название *</label><input id="kitTitle"></div><div class="form-group"><label>Цена * (₽)</label><input id="kitPrice" type="number" step="100"></div><div class="form-group"><label>Описание</label><textarea id="kitDesc" rows="3"></textarea></div><div class="form-group"><div class="upload-area" id="coverAreaKit"><i class="fas fa-image"></i> Обложка (необязательно)<input type="file" id="coverFileKit" accept="image/*" style="display:none"><div id="coverPreviewKit" class="upload-status"></div></div></div><div class="form-group"><div class="upload-area" id="zipAreaKit"><i class="fas fa-file-archive"></i> ZIP/RAR файл *<input type="file" id="zipFileKit" accept=".zip,.rar" style="display:none"><div id="zipStatusKit" class="upload-status"></div></div></div><button id="submitKitBtn" class="submit-beat-btn">Опубликовать</button></div>`;
+        else container.innerHTML = `<div class="upload-form"><h3>Добавить услугу</h3><div class="form-group"><label>Название *</label><input id="serviceTitle"></div><div class="form-group"><label>Цена * (₽)</label><input id="servicePrice" type="number" step="100"></div><div class="form-group"><label>Описание</label><textarea id="serviceDesc" rows="3"></textarea></div><button id="submitServiceBtn" class="submit-beat-btn">Опубликовать</button></div>`;
+        attachEvents();
+    }
+    
+    function attachEvents() {
         if(currentUploadType === 'beat'){
             let coverData=null, audioData=null;
-            document.getElementById('uploadCoverArea')?.addEventListener('click',()=>document.getElementById('coverFile').click());
-            document.getElementById('uploadAudioArea')?.addEventListener('click',()=>document.getElementById('audioFile').click());
-            document.getElementById('coverFile')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>coverData=ev.target.result; r.readAsDataURL(e.target.files[0]); showToast("Обложка загружена"); } });
-            document.getElementById('audioFile')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>audioData=ev.target.result; r.readAsDataURL(e.target.files[0]); showToast("Аудио загружено"); } });
-            document.getElementById('uploadSubmitBtn')?.addEventListener('click',()=>{ if(!audioData){ showToast("Загрузите аудио"); return; } const newId=Math.max(...beatsCatalog.map(b=>b.id),0)+1; beatsCatalog.push({id:newId, title:document.getElementById('beatTitle').value, producer:profileData.name, genre:document.getElementById('beatGenre').value, price:parseFloat(document.getElementById('beatPrice').value), bpm:parseInt(document.getElementById('beatBpm').value), key:document.getElementById('beatKey').value, cover:coverData, audioUrl:audioData, type:'beat', authorId:1}); saveAll(); renderBeats(); renderProfile(); showToast("Бит опубликован"); });
-        }
-        if(currentUploadType === 'kit'){
+            document.getElementById('coverAreaBeat')?.addEventListener('click',()=>document.getElementById('coverFileBeat').click());
+            document.getElementById('audioAreaBeat')?.addEventListener('click',()=>document.getElementById('audioFileBeat').click());
+            document.getElementById('coverFileBeat')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>{ coverData=ev.target.result; document.getElementById('coverPreviewBeat').innerHTML='✅ Обложка загружена'; document.getElementById('coverPreviewBeat').classList.add('success'); }; r.readAsDataURL(e.target.files[0]); } });
+            document.getElementById('audioFileBeat')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>{ audioData=ev.target.result; document.getElementById('audioStatusBeat').innerHTML='✅ Аудио загружено'; document.getElementById('audioStatusBeat').classList.add('success'); }; r.readAsDataURL(e.target.files[0]); } });
+            document.getElementById('submitBeatBtn')?.addEventListener('click',()=>{ if(!document.getElementById('beatTitle').value.trim() || !document.getElementById('beatPrice').value || !audioData){ showToast("Заполните обязательные поля и загрузите аудио"); return; } const newId=Math.max(...beatsCatalog.map(b=>b.id),0)+1; beatsCatalog.push({id:newId, title:document.getElementById('beatTitle').value, producer:currentUser.nickname, tags:document.getElementById('beatTags').value, bpm:parseInt(document.getElementById('beatBpm').value) || 0, key:document.getElementById('beatKey').value, price:parseInt(document.getElementById('beatPrice').value), cover:coverData, audioUrl:audioData, plays:0, type:'beat', authorId:currentUser.id}); saveAll(); renderMarket(); document.getElementById('beatTitle').value=''; document.getElementById('beatTags').value=''; document.getElementById('beatPrice').value=''; document.getElementById('beatBpm').value=''; document.getElementById('beatKey').value=''; coverData=null; audioData=null; document.getElementById('coverPreviewBeat').innerHTML=''; document.getElementById('audioStatusBeat').innerHTML=''; showToast("✅ Бит успешно добавлен!"); });
+        } else if(currentUploadType === 'kit'){
             let coverData=null, zipData=null;
-            document.getElementById('uploadCoverAreaKit')?.addEventListener('click',()=>document.getElementById('coverFileKit').click());
-            document.getElementById('uploadZipArea')?.addEventListener('click',()=>document.getElementById('zipFile').click());
-            document.getElementById('coverFileKit')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>coverData=ev.target.result; r.readAsDataURL(e.target.files[0]); showToast("Обложка загружена"); } });
-            document.getElementById('zipFile')?.addEventListener('change',(e)=>{ if(e.target.files[0]) showToast(`Файл ${e.target.files[0].name} выбран`); zipData=e.target.files[0]; });
-            document.getElementById('uploadSubmitBtnKit')?.addEventListener('click',()=>{ if(!document.getElementById('kitTitle').value){ showToast("Введите название"); return; } const newId='k'+Date.now(); kitsCatalog.push({id:newId, title:document.getElementById('kitTitle').value, price:parseFloat(document.getElementById('kitPrice').value), description:document.getElementById('kitDesc').value, cover:coverData, fileName:zipData?.name, type:'kit', authorId:1}); saveAll(); renderProfile(); showToast("Кит опубликован"); });
-        }
-        if(currentUploadType === 'service'){
-            document.getElementById('uploadSubmitBtnService')?.addEventListener('click',()=>{ if(!document.getElementById('serviceTitle').value){ showToast("Введите название"); return; } const newId='svc'+Date.now(); servicesCatalog.push({id:newId, title:document.getElementById('serviceTitle').value, price:parseFloat(document.getElementById('servicePrice').value), description:document.getElementById('serviceDesc').value, type:'service', authorId:1}); saveAll(); renderProfile(); showToast("Услуга добавлена"); });
-        }
+            document.getElementById('coverAreaKit')?.addEventListener('click',()=>document.getElementById('coverFileKit').click());
+            document.getElementById('zipAreaKit')?.addEventListener('click',()=>document.getElementById('zipFileKit').click());
+            document.getElementById('coverFileKit')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>{ coverData=ev.target.result; document.getElementById('coverPreviewKit').innerHTML='✅ Обложка загружена'; document.getElementById('coverPreviewKit').classList.add('success'); }; r.readAsDataURL(e.target.files[0]); } });
+            document.getElementById('zipFileKit')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ zipData=e.target.files[0].name; document.getElementById('zipStatusKit').innerHTML='✅ ZIP файл выбран'; document.getElementById('zipStatusKit').classList.add('success'); } });
+document.getElementById('submitKitBtn')?.addEventListener('click',() => {
+    if(!document.getElementById('kitTitle').value.trim() || !document.getElementById('kitPrice').value || !zipData){
+        showToast("Заполните обязательные поля и загрузите ZIP файл");
+        return;
+    }
+    const newId = 'k' + Date.now();
+    kitsCatalog.push({
+        id: newId,
+        title: document.getElementById('kitTitle').value,
+        producer: currentUser.nickname,  // <-- ДОБАВИТЬ ЭТУ СТРОКУ
+        price: parseInt(document.getElementById('kitPrice').value),
+        description: document.getElementById('kitDesc').value,
+        cover: coverData,
+        fileName: zipData,
+        type: 'kit',
+        authorId: currentUser.id
+    });
+    saveAll();
+    renderMarket();
+    // очистка полей...
+    showToast("✅ Кит успешно добавлен!");
+});
+        } else {
+document.getElementById('submitServiceBtn')?.addEventListener('click',() => {
+    if(!document.getElementById('serviceTitle').value.trim() || !document.getElementById('servicePrice').value){
+        showToast("Заполните обязательные поля");
+        return;
+    }
+    const newId = 'svc' + Date.now();
+    servicesCatalog.push({
+        id: newId,
+        title: document.getElementById('serviceTitle').value,
+        producer: currentUser.nickname,  // <-- ДОБАВИТЬ ЭТУ СТРОКУ
+        price: parseInt(document.getElementById('servicePrice').value),
+        description: document.getElementById('serviceDesc').value,
+        type: 'service',
+        authorId: currentUser.id
+    });
+    saveAll();
+    renderMarket();
+    // очистка полей...
+    showToast("✅ Услуга успешно добавлена!");
+});        }
     }
 
-    document.querySelectorAll('[data-upload-type]').forEach(tab=>tab.addEventListener('click',()=>{ document.querySelectorAll('[data-upload-type]').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); currentUploadType=tab.dataset.uploadType; renderUploadForm(); }));
-    document.querySelectorAll('.section-tab').forEach(tab=>{ if(tab.dataset.section) tab.addEventListener('click',()=>{ document.querySelectorAll('.profile-sections .section-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); currentProfileSection=tab.dataset.section; renderProfileSection(currentProfileSection); }); });
-    document.getElementById('openEditProfileBtn')?.addEventListener('click',()=>{ document.getElementById('editName').value=profileData.name; document.getElementById('editTelegram').value=profileData.telegram||''; document.getElementById('editBio').value=profileData.bio; document.getElementById('editSocials').value=profileData.socials||''; document.getElementById('editProfileModal').classList.add('active'); });
-    document.getElementById('saveProfileChangesBtn')?.addEventListener('click',()=>{ profileData.name=document.getElementById('editName').value; profileData.telegram=document.getElementById('editTelegram').value; profileData.bio=document.getElementById('editBio').value; profileData.socials=document.getElementById('editSocials').value; saveAll(); renderProfile(); document.getElementById('editProfileModal').classList.remove('active'); showToast("Профиль сохранён"); });
-    document.getElementById('closeEditProfileModal')?.addEventListener('click',()=>document.getElementById('editProfileModal').classList.remove('active'));
-    document.getElementById('profileAvatarLarge')?.addEventListener('click',()=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.onchange=e=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>{ profileData.avatar=ev.target.result; saveAll(); renderProfile(); showToast("Аватар обновлён"); }; r.readAsDataURL(e.target.files[0]); } }; inp.click(); });
-    function switchPage(page) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(`${page}Page`).classList.add('active'); document.querySelectorAll('.nav-tab').forEach(t=>{ t.classList.remove('active'); if(t.dataset.page===page) t.classList.add('active'); }); if(page==='home'){ renderBeats(); renderFilters(); } if(page==='favorites') renderFavorites(); if(page==='profile') renderProfile(); if(page==='upload') renderUploadForm(); }
-    document.querySelectorAll('.nav-tab').forEach(tab=>tab.addEventListener('click',()=>switchPage(tab.dataset.page)));
-    document.getElementById('cartBtn')?.addEventListener('click',()=>{ renderCartModal(); document.getElementById('cartModal').classList.add('active'); });
-    document.getElementById('closeCartModal')?.addEventListener('click',()=>document.getElementById('cartModal').classList.remove('active'));
-    document.getElementById('checkoutBtn')?.addEventListener('click',()=>{ if(cart.length===0) showToast("Корзина пуста"); else { showToast(`Заказ оформлен!`); cart=[]; saveAll(); updateCartUI(); document.getElementById('cartModal').classList.remove('active'); } });
-    document.querySelectorAll('.modal-overlay').forEach(overlay=>overlay.addEventListener('click',(e)=>{ if(e.target===overlay) overlay.classList.remove('active'); }));
-    initAudioPlayer(); renderFilters(); renderBeats(); updateCartUI(); renderProfile(); renderUploadForm();
+    // Профиль
+    function renderProfilePage() {
+        const container = document.getElementById('profileContent');
+        if(!isRegistered || !currentUser) {
+            container.innerHTML = `<div class="registration-card"><h2 style="text-align:center;">📝 Регистрация</h2><div class="form-group"><label>Никнейм *</label><input id="regNickname"></div><div class="form-group"><label>E-mail *</label><input id="regEmail" type="email"></div><div class="form-group"><label>ФИО *</label><input id="regFullname"></div><div class="form-group"><label>Telegram username</label><input id="regTelegram" placeholder="@username"></div><div class="form-group"><label>Подпись *</label><div class="signature-area"><div class="signature-canvas-container"><canvas id="signatureCanvas" width="400" height="150"></canvas></div><div class="signature-buttons"><button id="clearSig">Очистить</button><button id="undoSig">Отменить</button></div></div></div><button id="registerBtn" class="register-submit-btn">Зарегистрироваться</button></div>`;
+            setTimeout(() => initRegSignature(), 50);
+            return;
+        }
+        container.innerHTML = `<div class="profile-header"><div class="profile-avatar-large" id="profileAvatarLarge">${currentUser.avatar ? `<img src="${currentUser.avatar}">` : '<i class="fas fa-user"></i>'}</div><div class="profile-username">${escapeHtml(currentUser.nickname)}</div><div class="profile-stats"><div class="stat-item"><div class="stat-number">${currentUser.plays||0}</div><div class="stat-label">прослушиваний</div></div><div class="stat-item"><div class="stat-number">${currentUser.likes||0}</div><div class="stat-label">лайков</div></div><div class="stat-item"><div class="stat-number">${currentUser.followers||0}</div><div class="stat-label">подписчиков</div></div></div><button class="edit-profile-btn" id="openEditProfileBtn"><i class="fas fa-edit"></i> Редактировать</button><div class="profile-bio">📧 ${escapeHtml(currentUser.email)}<br>${currentUser.telegram ? `📱 ${escapeHtml(currentUser.telegram)}` : ''}<br>${escapeHtml(currentUser.bio)}</div></div>
+        <div class="search-bar" style="margin-bottom:24px;"><i class="fas fa-search search-icon"></i><input type="text" class="search-input" id="profileSearchInput" placeholder="Поиск в моих битах..."></div>
+        <div class="profile-sections"><div class="section-tab ${currentProfileSection==='beats'?'active':''}" data-section="beats">Биты <span id="beatsCount">(${beatsCatalog.filter(b=>b.authorId===currentUser.id).length})</span></div><div class="section-tab ${currentProfileSection==='kits'?'active':''}" data-section="kits">Киты <span id="kitsCount">(${kitsCatalog.filter(k=>k.authorId===currentUser.id).length})</span></div><div class="section-tab ${currentProfileSection==='services'?'active':''}" data-section="services">Услуги <span id="servicesCount">(${servicesCatalog.filter(s=>s.authorId===currentUser.id).length})</span></div></div><div id="profileItemsContainer"></div>`;
+        document.querySelectorAll('.section-tab[data-section]').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.profile-sections .section-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); currentProfileSection = tab.dataset.section; renderProfileItems(currentProfileSection, document.getElementById('profileSearchInput')?.value || ''); }));
+        document.getElementById('profileSearchInput')?.addEventListener('input', (e) => renderProfileItems(currentProfileSection, e.target.value));
+        renderProfileItems(currentProfileSection, '');
+        document.getElementById('openEditProfileBtn')?.addEventListener('click', () => { document.getElementById('editName').value=currentUser.nickname; document.getElementById('editEmail').value=currentUser.email; document.getElementById('editTelegram').value=currentUser.telegram||''; document.getElementById('editBio').value=currentUser.bio; document.getElementById('editSocials').value=currentUser.socials||''; document.getElementById('editProfileModal').classList.add('active'); setTimeout(()=>initEditSignature(), 100); });
+        document.getElementById('profileAvatarLarge')?.addEventListener('click', () => { const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.onchange=e=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>{ currentUser.avatar=ev.target.result; saveAll(); renderProfilePage(); showToast("Аватар обновлён"); }; r.readAsDataURL(e.target.files[0]); } }; inp.click(); });
+    }
+    
+    function renderProfileItems(section, search) {
+        const container = document.getElementById('profileItemsContainer');
+        let items = [];
+        if(section === 'beats') items = beatsCatalog.filter(b=>b.authorId===currentUser.id);
+        else if(section === 'kits') items = kitsCatalog.filter(k=>k.authorId===currentUser.id);
+        else items = servicesCatalog.filter(s=>s.authorId===currentUser.id);
+        if(search) items = items.filter(i => i.title.toLowerCase().includes(search.toLowerCase()) || (i.tags || '').toLowerCase().includes(search.toLowerCase()) || (i.bpm && i.bpm.toString().includes(search)));
+        if(items.length===0){ container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--tg-hint);">Нет элементов</div>'; return; }
+        container.innerHTML = items.map(item => {
+            const isBeat = section === 'beats';
+            return `<div class="item-row"><div class="item-cover-small">${item.cover ? `<img src="${item.cover}">` : `<i class="fas ${section==='beats'?'fa-music':section==='kits'?'fa-drum':'fa-cogs'}"></i>`}</div><div class="item-info"><div class="item-title">${escapeHtml(item.title)}</div><div class="item-price">${formatPrice(item.price)}</div><div class="item-tags">${(item.tags || '').split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>${item.bpm ? `<div class="item-tags"><span class="tag">${item.bpm} BPM</span>${item.key ? `<span class="tag">${item.key}</span>` : ''}</div>` : (item.key ? `<div class="item-tags"><span class="tag">${item.key}</span></div>` : '')}</div><div class="item-actions">${isBeat ? `<button class="play-item-btn" data-audio="${item.audioUrl || ''}" data-title="${escapeHtml(item.title)}"><i class="fas fa-play"></i></button>` : ''}<button class="edit-item-btn" data-id="${item.id}" data-type="${section.slice(0,-1)}"><i class="fas fa-edit"></i></button></div></div>`;
+        }).join('');
+        document.querySelectorAll('.play-item-btn').forEach(btn => { if(btn.dataset.audio) btn.addEventListener('click', () => playAudio(btn.dataset.audio, btn.dataset.title, currentUser.nickname)); });
+        document.querySelectorAll('.edit-item-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id, btn.dataset.type)));
+    }
+    
+    function openEditModal(id, type) {
+        let item;
+        if(type === 'beat') item = beatsCatalog.find(i => i.id == id);
+        else if(type === 'kit') item = kitsCatalog.find(i => i.id == id);
+        else item = servicesCatalog.find(i => i.id == id);
+        if(!item) return;
+        
+        let html = `<h2>✏️ Редактировать ${type}</h2><div class="form-group"><label>Название *</label><input id="editItemTitle" value="${escapeHtml(item.title)}"></div><div class="form-group"><label>Цена * (₽)</label><input id="editItemPrice" type="number" step="100" value="${item.price}"></div>`;
+        if(type === 'beat') {
+            html += `<div class="form-group"><label>Тэги</label><input id="editItemTags" value="${item.tags || ''}"></div><div class="form-group"><label>BPM</label><input id="editItemBpm" type="number" value="${item.bpm || 0}"></div><div class="form-group"><label>Тональность</label><select id="editItemKey" class="key-select"><option value="">Выберите тональность</option>${keyOptions.map(k=>`<option value="${k}" ${item.key===k?'selected':''}>${k}</option>`).join('')}</select></div><div class="form-group"><div class="upload-area" id="editCoverArea"><i class="fas fa-image"></i> Обложка (необязательно)<input type="file" id="editCoverFile" accept="image/*" style="display:none"><div id="editCoverPreview" class="upload-status"></div></div></div><div class="form-group"><div class="upload-area" id="editAudioArea"><i class="fas fa-music"></i> Аудио файл (замените при необходимости)<input type="file" id="editAudioFile" accept="audio/*" style="display:none"><div id="editAudioPreview" class="upload-status"></div></div></div>`;
+        }
+        if(type === 'kit') html += `<div class="form-group"><label>Описание</label><textarea id="editItemDesc" rows="3">${escapeHtml(item.description || '')}</textarea></div><div class="form-group"><div class="upload-area" id="editCoverArea"><i class="fas fa-image"></i> Обложка (необязательно)<input type="file" id="editCoverFile" accept="image/*" style="display:none"><div id="editCoverPreview" class="upload-status"></div></div></div><div class="form-group"><div class="upload-area" id="editZipArea"><i class="fas fa-file-archive"></i> ZIP/RAR файл (замените при необходимости)<input type="file" id="editZipFile" accept=".zip,.rar" style="display:none"><div id="editZipPreview" class="upload-status"></div></div></div>`;
+        if(type === 'service') html += `<div class="form-group"><label>Описание</label><textarea id="editItemDesc" rows="3">${escapeHtml(item.description || '')}</textarea></div>`;
+        html += `<div class="button-group"><button id="saveEditBtn" class="submit-beat-btn">Сохранить</button><button id="deleteItemBtn" class="cancel-btn delete-btn">Удалить</button><button id="closeEditModalBtn" class="cancel-btn">Отмена</button></div>`;
+        
+        document.getElementById('editItemModalContent').innerHTML = html;
+        document.getElementById('editItemModal').classList.add('active');
+        
+        if(type === 'beat' || type === 'kit') {
+            let newCover = null;
+            document.getElementById('editCoverArea')?.addEventListener('click',()=>document.getElementById('editCoverFile').click());
+            document.getElementById('editCoverFile')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>{ newCover=ev.target.result; document.getElementById('editCoverPreview').innerHTML='✅ Обложка загружена'; }; r.readAsDataURL(e.target.files[0]); } });
+            if(type === 'beat') {
+                let newAudio = null;
+                document.getElementById('editAudioArea')?.addEventListener('click',()=>document.getElementById('editAudioFile').click());
+                document.getElementById('editAudioFile')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>{ newAudio=ev.target.result; document.getElementById('editAudioPreview').innerHTML='✅ Аудио загружено'; }; r.readAsDataURL(e.target.files[0]); } });
+                document.getElementById('saveEditBtn').onclick = () => {
+                    item.title = document.getElementById('editItemTitle').value;
+                    item.price = parseInt(document.getElementById('editItemPrice').value);
+                    item.tags = document.getElementById('editItemTags').value;
+                    item.bpm = parseInt(document.getElementById('editItemBpm').value) || 0;
+                    item.key = document.getElementById('editItemKey').value;
+                    if(newCover) item.cover = newCover;
+                    if(newAudio) item.audioUrl = newAudio;
+                    saveAll(); renderProfilePage(); renderMarket();
+                    document.getElementById('editItemModal').classList.remove('active');
+                    showToast("Сохранено");
+                };
+            } else if(type === 'kit') {
+                let newZip = null;
+                document.getElementById('editZipArea')?.addEventListener('click',()=>document.getElementById('editZipFile').click());
+                document.getElementById('editZipFile')?.addEventListener('change',(e)=>{ if(e.target.files[0]){ newZip=e.target.files[0].name; document.getElementById('editZipPreview').innerHTML='✅ ZIP файл выбран'; } });
+                document.getElementById('saveEditBtn').onclick = () => {
+                    item.title = document.getElementById('editItemTitle').value;
+                    item.price = parseInt(document.getElementById('editItemPrice').value);
+                    item.description = document.getElementById('editItemDesc').value;
+                    if(newCover) item.cover = newCover;
+                    if(newZip) item.fileName = newZip;
+                    saveAll(); renderProfilePage(); renderMarket();
+                    document.getElementById('editItemModal').classList.remove('active');
+                    showToast("Сохранено");
+                };
+            }
+        } else {
+            document.getElementById('saveEditBtn').onclick = () => {
+                item.title = document.getElementById('editItemTitle').value;
+                item.price = parseInt(document.getElementById('editItemPrice').value);
+                item.description = document.getElementById('editItemDesc').value;
+                saveAll(); renderProfilePage(); renderMarket();
+                document.getElementById('editItemModal').classList.remove('active');
+                showToast("Сохранено");
+            };
+        }
+        document.getElementById('deleteItemBtn').onclick = () => {
+            if(type === 'beat') beatsCatalog = beatsCatalog.filter(i => i.id != id);
+            else if(type === 'kit') kitsCatalog = kitsCatalog.filter(i => i.id != id);
+            else servicesCatalog = servicesCatalog.filter(i => i.id != id);
+            saveAll(); renderProfilePage(); renderMarket();
+            document.getElementById('editItemModal').classList.remove('active');
+            showToast("Удалено");
+        };
+        document.getElementById('closeEditModalBtn').onclick = () => document.getElementById('editItemModal').classList.remove('active');
+    }
+
+    // Регистрация
+    let regCanvas=null, regCtx=null, regHistory=[], regWidth=400, regHeight=150;
+    function initRegSignature() {
+        const canvas = document.getElementById('signatureCanvas');
+        if(!canvas) return;
+        const container = canvas.parentElement;
+        regWidth = container.clientWidth || 400;
+        regHeight = 150;
+        canvas.width = regWidth; canvas.height = regHeight;
+        canvas.style.width = '100%';
+        regCtx = canvas.getContext('2d');
+        regCtx.fillStyle = 'white'; regCtx.fillRect(0,0,regWidth,regHeight);
+        regCtx.strokeStyle = '#000'; regCtx.lineWidth = 2;
+        regHistory = [];
+        const save = () => { const img = regCtx.getImageData(0,0,regWidth,regHeight); regHistory.push(img); if(regHistory.length>20) regHistory.shift(); };
+        let draw=false;
+        const start=(e)=>{ draw=true; const p=getPos(e); regCtx.beginPath(); regCtx.moveTo(p.x,p.y); e.preventDefault(); };
+        const move=(e)=>{ if(!draw) return; const p=getPos(e); regCtx.lineTo(p.x,p.y); regCtx.stroke(); regCtx.beginPath(); regCtx.moveTo(p.x,p.y); };
+        const end=()=>{ draw=false; save(); };
+        const getPos=(e)=>{ const rect=canvas.getBoundingClientRect(); const scaleX=canvas.width/rect.width; const scaleY=canvas.height/rect.height; let cx,cy; if(e.touches){ cx=e.touches[0].clientX; cy=e.touches[0].clientY; }else{ cx=e.clientX; cy=e.clientY; } return { x:(cx-rect.left)*scaleX, y:(cy-rect.top)*scaleY }; };
+        canvas.addEventListener('mousedown',start); canvas.addEventListener('mousemove',move); canvas.addEventListener('mouseup',end); canvas.addEventListener('touchstart',start); canvas.addEventListener('touchmove',move); canvas.addEventListener('touchend',end);
+        window.clearRegSig = () => { regCtx.fillStyle='white'; regCtx.fillRect(0,0,regWidth,regHeight); regHistory=[]; save(); };
+        window.undoRegSig = () => { if(regHistory.length>1){ regHistory.pop(); regCtx.putImageData(regHistory[regHistory.length-1],0,0); } };
+        document.getElementById('clearSig')?.addEventListener('click',()=>window.clearRegSig());
+        document.getElementById('undoSig')?.addEventListener('click',()=>window.undoRegSig());
+    }
+    function isSignatureEmpty() { if(!regCtx) return true; const img=regCtx.getImageData(0,0,regWidth,regHeight); for(let i=0;i<img.data.length;i+=4) if(img.data[i]<250 || img.data[i+1]<250 || img.data[i+2]<250) return false; return true; }
+    function registerUser() {
+        const nickname = document.getElementById('regNickname')?.value.trim();
+        const email = document.getElementById('regEmail')?.value.trim();
+        const fullname = document.getElementById('regFullname')?.value.trim();
+        const telegram = document.getElementById('regTelegram')?.value.trim();
+        if(!nickname){ showToast("Введите никнейм"); return; }
+        if(!email || !email.includes('@')){ showToast("Введите корректный email"); return; }
+        if(!fullname){ showToast("Введите ФИО"); return; }
+        if(isSignatureEmpty()){ showToast("Нарисуйте подпись"); return; }
+        currentUser = { id: Date.now(), nickname, email, fullname, telegram, signature: document.getElementById('signatureCanvas').toDataURL(), registeredAt: new Date().toISOString(), avatar: null, bio: "Музыкант на BeatWave", plays: 0, likes: 0, followers: 0, socials: "" };
+        localStorage.setItem('beatwave_registered', 'true');
+        localStorage.setItem('beatwave_user', JSON.stringify(currentUser));
+        isRegistered = true;
+        showToast("✅ Регистрация успешна!");
+        renderProfilePage();
+        renderUploadForm();
+    }
+
+    let editSignatureCanvas=null, editCtx=null, editHistory=[], editCanvasWidth=400, editCanvasHeight=150;
+    function initEditSignature() {
+        const canvas = document.getElementById('editSignatureCanvas');
+        if(!canvas) return;
+        const container = canvas.parentElement;
+        editCanvasWidth = container.clientWidth || 400;
+        editCanvasHeight = 150;
+        canvas.width = editCanvasWidth; canvas.height = editCanvasHeight;
+        canvas.style.width = '100%';
+        editCtx = canvas.getContext('2d');
+        editCtx.fillStyle = 'white'; editCtx.fillRect(0,0,editCanvasWidth,editCanvasHeight);
+        editCtx.strokeStyle = '#000'; editCtx.lineWidth = 2;
+        editHistory = [];
+        const save = () => { const img = editCtx.getImageData(0,0,editCanvasWidth,editCanvasHeight); editHistory.push(img); if(editHistory.length>20) editHistory.shift(); };
+        let draw=false;
+        const start=(e)=>{ draw=true; const p=getPos(e); editCtx.beginPath(); editCtx.moveTo(p.x,p.y); e.preventDefault(); };
+        const move=(e)=>{ if(!draw) return; const p=getPos(e); editCtx.lineTo(p.x,p.y); editCtx.stroke(); editCtx.beginPath(); editCtx.moveTo(p.x,p.y); };
+        const end=()=>{ draw=false; save(); };
+        const getPos=(e)=>{ const rect=canvas.getBoundingClientRect(); const scaleX=canvas.width/rect.width; const scaleY=canvas.height/rect.height; let cx,cy; if(e.touches){ cx=e.touches[0].clientX; cy=e.touches[0].clientY; }else{ cx=e.clientX; cy=e.clientY; } return { x:(cx-rect.left)*scaleX, y:(cy-rect.top)*scaleY }; };
+        canvas.addEventListener('mousedown',start); canvas.addEventListener('mousemove',move); canvas.addEventListener('mouseup',end); canvas.addEventListener('touchstart',start); canvas.addEventListener('touchmove',move); canvas.addEventListener('touchend',end);
+        window.clearEditSig = () => { editCtx.fillStyle='white'; editCtx.fillRect(0,0,editCanvasWidth,editCanvasHeight); editHistory=[]; save(); };
+        window.undoEditSig = () => { if(editHistory.length>1){ editHistory.pop(); editCtx.putImageData(editHistory[editHistory.length-1],0,0); } };
+        document.getElementById('clearEditSignature')?.addEventListener('click',()=>window.clearEditSig());
+        document.getElementById('undoEditSignature')?.addEventListener('click',()=>window.undoEditSig());
+        if(currentUser?.signature) { const img=new Image(); img.onload=()=>editCtx.drawImage(img,0,0,editCanvasWidth,editCanvasHeight); img.src=currentUser.signature; }
+    }
+
+    document.getElementById('saveProfileChangesBtn')?.addEventListener('click', () => {
+    const oldNickname = currentUser.nickname;
+    const newNickname = document.getElementById('editName').value;
+    
+    // Обновляем данные пользователя
+    currentUser.nickname = newNickname;
+    currentUser.email = document.getElementById('editEmail').value;
+    currentUser.telegram = document.getElementById('editTelegram').value;
+    currentUser.bio = document.getElementById('editBio').value;
+    currentUser.socials = document.getElementById('editSocials').value;
+    
+    // Если ник изменился, обновляем во всех товарах пользователя
+    if (oldNickname !== newNickname) {
+        // Обновляем биты
+        beatsCatalog.forEach(beat => {
+            if (beat.authorId === currentUser.id) {
+                beat.producer = newNickname;
+            }
+        });
+        // Обновляем киты
+        kitsCatalog.forEach(kit => {
+            if (kit.authorId === currentUser.id) {
+                kit.producer = newNickname;
+            }
+        });
+        // Обновляем услуги
+        servicesCatalog.forEach(service => {
+            if (service.authorId === currentUser.id) {
+                service.producer = newNickname;
+            }
+        });
+    }
+    
+    if(editCtx && !(editCtx.getImageData(0,0,editCanvasWidth,editCanvasHeight).data.every((v,i)=>v===255))) {
+        currentUser.signature = document.getElementById('editSignatureCanvas').toDataURL();
+    }
+    
+    saveAll();
+    renderProfilePage();
+    renderMarket();
+    renderFavorites();
+    document.getElementById('editProfileModal').classList.remove('active');
+    showToast("Профиль обновлён");
+});
+    document.getElementById('closeEditProfileModal')?.addEventListener('click', () => document.getElementById('editProfileModal').classList.remove('active'));
+    document.getElementById('closeCartModal')?.addEventListener('click', () => document.getElementById('cartModal').classList.remove('active'));
+    document.getElementById('checkoutBtn')?.addEventListener('click', () => { if(cart.length===0) showToast("Корзина пуста"); else { showToast("Заказ оформлен!"); cart = []; saveAll(); updateCartUI(); document.getElementById('cartModal').classList.remove('active'); } });
+    document.getElementById('cartBtn').onclick = () => { renderCartModal(); document.getElementById('cartModal').classList.add('active'); };
+    document.querySelectorAll('.modal-overlay').forEach(overlay => overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.classList.remove('active'); }));
+    
+    function switchPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(`${page}Page`).classList.add('active');
+        document.querySelectorAll('.nav-tab').forEach(t => { t.classList.remove('active'); if(t.dataset.page === page) t.classList.add('active'); });
+        if(page === 'home') { renderMarket(); renderPopularBeats(); renderPopularProducers(); }
+        if(page === 'favorites') renderFavorites();
+        if(page === 'profile') renderProfilePage();
+        if(page === 'upload') renderUploadForm();
+    }
+    document.querySelectorAll('.nav-tab').forEach(tab => tab.addEventListener('click', () => switchPage(tab.dataset.page)));
+    document.querySelectorAll('.main-tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); currentMainType = tab.dataset.main; searchQuery = ""; document.getElementById('searchInput').value = ""; renderMarket(); }));
+    document.getElementById('searchInput')?.addEventListener('input', (e) => { searchQuery = e.target.value; renderMarket(); });
+    document.getElementById('favSearchInput')?.addEventListener('input', (e) => { favSearchQuery = e.target.value; renderFavorites(); });
+    
+    if (isRegistered) { const saved = localStorage.getItem('beatwave_user'); if(saved) currentUser = JSON.parse(saved); else isRegistered = false; }
+    initAudioPlayer(); renderMarket(); renderPopularBeats(); renderPopularProducers(); updateCartUI(); renderProfilePage(); renderUploadForm();
+    window.playAudio = playAudio;
 </script>
 </body>
 </html>
